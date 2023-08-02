@@ -3,6 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'LoginView.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'helper/firestore.dart';
 
 class Signup extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
@@ -15,8 +18,12 @@ class Signup extends StatelessWidget {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      await FirestoreService().createUserDoc();
       // Successful signup
       Fluttertoast.showToast(msg: 'Signup successful');
+      // Set the login state to true using shared preferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('loggedIn', true);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => LoginView()),

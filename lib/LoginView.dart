@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'signup.dart';
 import 'HomePage.dart';
 
 class LoginView extends StatelessWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+
 
   Future<void> _login(BuildContext context) async {
     try {
@@ -17,6 +20,8 @@ class LoginView extends StatelessWidget {
       );
       // Successful login
       Fluttertoast.showToast(msg: 'Login successful');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('loggedIn', true);
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => HomePage()), // Replace with your home page

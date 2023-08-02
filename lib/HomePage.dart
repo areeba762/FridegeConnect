@@ -1,42 +1,61 @@
 import 'package:flutter/material.dart';
-import 'LoginView.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:uuid/uuid.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'LoginView.dart';
+import 'SplashScreen.dart';
+import 'Home_tab.dart';
 import 'fridge_items.dart';
-import 'fridge_tab.dart';
+import 'fridge_items_tab.dart';
+import 'profile_tab.dart';
 class HomePage extends StatefulWidget {
+
   @override
   _HomePageState createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    HomeTab(),
-    ProfileTab(),
-    FridgeItemListTab(),
-  ];
+
+  // Function to change the selected tab in the bottom navigation bar
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    Widget currentPage;
+    switch (_currentIndex) {
+      case 0:
+        currentPage = Home_tab(); // Implement HomeTab() widget to show the home page content
+        break;
+      case 1:
+        currentPage = profile_tab(); // Implement ProfileTab() widget to show the profile page content
+        break;
+      case 2:
+        currentPage = add_fridge_items(); // Implement FridgeItemsTab() widget to show the fridge items page content
+        break;
+      default:
+        currentPage = Home_tab();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Fridge Connect'),
+        actions: [
+          IconButton(
+            onPressed: () => _handleLogout(context),
+            icon: Icon(Icons.logout),
+          ),
+        ],
       ),
-      body: _pages[_currentIndex],
+      body: currentPage,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: _onTabTapped,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -47,93 +66,63 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Item List in Fridge',
+            icon: Icon(Icons.kitchen),
+            label: 'Fridge Items',
           ),
         ],
       ),
     );
   }
-}
-
-class HomeTab extends StatelessWidget {
 
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FridgeItemsPage()),
-        );
-      },
-      child: Center(
-        child: Image.asset(
-          'images/fridge.png',
-          width: 400,
-          height: 500,
-        ),
-      ),
+  // Function to handle logout button press
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            title: Text("Logout"),
+            content: Text("Are you sure you want to logout?"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await _logout(context);
+                },
+                child: Text("Logout"),
+              ),
+            ],
+          ),
     );
   }
-}
 
-class ProfileTab extends StatefulWidget {
-  @override
-  _ProfileTabState createState() => _ProfileTabState();
-}
+  // Function to perform logout
+  Future<void> _logout(BuildContext context) async {
+    try {
+      // TODO: Add any other necessary logout logic here, like signing out from Firebase.
+      FirebaseAuth auth = FirebaseAuth.instance;
+      await auth.signOut();
 
-class _ProfileTabState extends State<ProfileTab> {
-  User? _user;
+      // Clear the login status
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('loggedIn', false);
 
-  @override
-  void initState() {
-    super.initState();
-    _getUserProfile();
-  }
+      // Go back to the login screen
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => SplashScreen()),
+            (route) => false,
+      );
 
-  Future<void> _getUserProfile() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      setState(() {
-        _user = currentUser;
-      });
+      Fluttertoast.showToast(msg: 'Logout successful');
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Error occurred during logout: $e');
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<User?>(
-      future: FirebaseAuth.instance.authStateChanges().first,
-      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          _user = snapshot.data;
-          return _user != null
-              ? Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  child: Icon(Icons.person, size: 64),
-                  radius: 48,
-                ),
-                SizedBox(height: 16),
-                Text('Email: ${_user!.email ?? 'N/A'}'),
-                SizedBox(height: 8),
-                Text('User ID: ${_user!.uid}'),
-              ],
-            ),
-          )
-              : Center(child: Text('User not logged in.'));
-        }
-      },
-    );
-
-  }
 }
-
