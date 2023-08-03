@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fridge_app/helper/edit_task.dart';
 
 class fridge_items_tab extends StatefulWidget {
   @override
@@ -16,12 +17,19 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
     // Fetch the current user when the widget is initialized
     user = FirebaseAuth.instance.currentUser;
   }
+
   final TextEditingController _itemNameController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _shelfNumberController = TextEditingController();
   String? _selectedCategory;
 
-  List<String> _categories = ['Fruits', 'Vegetables', 'Dairy', 'Meat', 'Others'];
+  List<String> _categories = [
+    'Fruits',
+    'Vegetables',
+    'Dairy',
+    'Meat',
+    'Others'
+  ];
 
   // void _addNewItem() {
   //   String itemName = _itemNameController.text.trim();
@@ -77,7 +85,11 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
 
   void _deleteItem(String itemId) {
     // Implement delete item functionality using Firestore
-    FirebaseFirestore.instance.collection('fridge_items').doc(itemId).delete().then((_) {
+    FirebaseFirestore.instance
+        .collection('fridge_items')
+        .doc(itemId)
+        .delete()
+        .then((_) {
       // Item deleted successfully
       setState(() {});
     }).catchError((error) {
@@ -97,7 +109,8 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
     });
   }
 
-  void _editItem(String itemId, String itemName, double quantity, int shelfNumber, String category) {
+  void _editItem(String itemId, String itemName, double quantity,
+      int shelfNumber, String category) {
     _itemNameController.text = itemName;
     _quantityController.text = quantity.toString();
     _shelfNumberController.text = shelfNumber.toString();
@@ -173,10 +186,15 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
             onPressed: () {
               Navigator.pop(context); // Close the dialog
               // Implement edit item functionality using Firestore
-              FirebaseFirestore.instance.collection('fridge_items').doc(itemId).update({
+              FirebaseFirestore.instance
+                  .collection('fridge_items')
+                  .doc(itemId)
+                  .update({
                 'itemName': _itemNameController.text.trim(),
-                'quantity': double.tryParse(_quantityController.text.trim()) ?? 0.0,
-                'shelfNumber': int.tryParse(_shelfNumberController.text.trim()) ?? 0,
+                'quantity':
+                    double.tryParse(_quantityController.text.trim()) ?? 0.0,
+                'shelfNumber':
+                    int.tryParse(_shelfNumberController.text.trim()) ?? 0,
                 'category': _selectedCategory,
               }).then((_) {
                 // Item updated successfully
@@ -210,7 +228,6 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Fridge Items'),
@@ -286,7 +303,11 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
           // ),
           Expanded(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('Users').doc(FirebaseAuth.instance.currentUser!.uid).collection('usersData').doc().snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('Users')
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection('usersData')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Show a loading spinner while waiting for the data
@@ -300,43 +321,62 @@ class _FridgeItemsTabState extends State<fridge_items_tab> {
                   );
                 } else if (snapshot.hasData) {
                   try {
-                    final link = snapshot.data!.data(); // it returns the whole document inside link variable
+                    final link = snapshot.data!;
+                    // print(link.docs.length);
+                    print(link.docs.first.data());
 
-                    String itemname = link?['ItemName'] ?? 'h';
-                    double itemquantity = link?['Quantity'] ?? 0.0;
-                    int shelfno = link?['ShelfNo'] ?? 0;
-                    String category = link?['Category'] ?? '';
-                    String itemId;
-                        return ListView.builder(
-                            itemCount: 3,
-                          itemBuilder: (BuildContext context, int index) {
-                            return ListTile(
-                              title: Text(itemname),
-                              subtitle: Text(itemquantity.toString()),
-                              trailing: IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  // _deleteItem(itemId);
-                                },
-                              ),
-                              onTap: () {
-                                // _editItem(itemId, link?['ItemName'], link?['Quantity'], link?['ShelfNo'], link?['Category']);
+                    print(link.docs[0].id);
+
+                    // it returns the whole document inside link variable
+                    // print( link.docs[0].data());
+
+                    // String itemname = link?['ItemName'] ?? 'Item Not fetched';
+                    // double itemquantity = link?['Quantity'] ?? 0.0;
+                    // int shelfno = link?['ShelfNo'] ?? 0;
+                    // String category = link?['Category'] ?? '';
+                    // String itemId;
+                    return ListView.builder(
+                        itemCount: link.docs.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            title: Text(link.docs[index]['ItemName'] ??
+                                'Item Not fetched'),
+                            subtitle: Text(
+                                link.docs[index]['Quantity'].toString() ??
+                                    '0.0'),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                FirebaseFirestore.instance
+                                    .collection('Users')
+                                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                                    .collection('usersData')
+                                    .doc(link.docs[index].id).delete();
+                                // _deleteItem(itemId);
                               },
-                            );
-                        }
-                        );
-                         }catch (error) {
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => UpdateItem(
+                                          docId: link.docs[index].id.toString(),
+                                        )),
+                              );
+                              // _editItem((link.docs[index].id.toString(), link?['ItemName'], link?['Quantity'], link?['ShelfNo'], link?['Category']);
+                            },
+                          );
+                        });
+                  } catch (error) {
                     return Center(
-                    child: Text('Error1: $error'),
+                      child: Text('Error1: $error'),
                     );
-                   }
-                 } else {
-                  return const Center(
-                  child: Text('No data available.')
-                );
-             }
+                  }
+                } else {
+                  return const Center(child: Text('No data available.'));
+                }
 
-                    // if (snapshot.hasData) {
+                // if (snapshot.hasData) {
                 //   List<DocumentSnapshot> items = snapshot.data!.docs;
                 //   return ListView.builder(
                 //     itemCount: items.length,
