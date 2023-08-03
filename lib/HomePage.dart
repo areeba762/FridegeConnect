@@ -94,8 +94,12 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () async {
                   await _logout(context);
                 },
-                child: Text("Logout"),
-              ),
+                child: Text("Logout",
+                 style: TextStyle(color: Colors.white),),
+                 style: ButtonStyle(
+                   backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple), // Change the color here
+                   ),
+                ),
             ],
           ),
     );

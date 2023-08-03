@@ -57,9 +57,9 @@ class _HomeTabState extends State<Home_tab> {
                     );
                   },
                   child: Image.asset(
-                    'images/fridge.png', // Path to the fridge image asset
-                    width: 400,
-                    height: 400,
+                    'images/fridgeLogo.png', // Path to the fridge image asset
+                    width: 500,
+                    height: 500,
                   ),
                 ),
               ],
