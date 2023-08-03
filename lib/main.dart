@@ -15,7 +15,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  // Check if the user is logged in or not using SharedPreferences
+
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('loggedIn') ?? false;
 
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 
   MyApp({required this.isLoggedIn});
 
-  // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

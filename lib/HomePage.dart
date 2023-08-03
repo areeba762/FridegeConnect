@@ -30,13 +30,13 @@ class _HomePageState extends State<HomePage> {
     Widget currentPage;
     switch (_currentIndex) {
       case 0:
-        currentPage = Home_tab(); // Implement HomeTab() widget to show the home page content
+        currentPage = Home_tab();
         break;
       case 1:
-        currentPage = profile_tab(); // Implement ProfileTab() widget to show the profile page content
+        currentPage = profile_tab();
         break;
       case 2:
-        currentPage = add_fridge_items(); // Implement FridgeItemsTab() widget to show the fridge items page content
+        currentPage = add_fridge_items();
         break;
       default:
         currentPage = Home_tab();
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  // Function to handle logout button press
+
   void _handleLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -101,18 +101,18 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Function to perform logout
+
   Future<void> _logout(BuildContext context) async {
     try {
       // TODO: Add any other necessary logout logic here, like signing out from Firebase.
       FirebaseAuth auth = FirebaseAuth.instance;
       await auth.signOut();
 
-      // Clear the login status
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('loggedIn', false);
 
-      // Go back to the login screen
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => SplashScreen()),
