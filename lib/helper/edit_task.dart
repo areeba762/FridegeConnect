@@ -115,7 +115,9 @@ class _UpdateItemState extends State<UpdateItem> {
                   quantityController.clear();
                   shelfNoController.clear();
                   _selectedCategory = '';
-                  setState(() {});  }).catchError((error) {
+                  setState(() {});
+
+                }).catchError((error) {
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(

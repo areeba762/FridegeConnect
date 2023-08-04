@@ -56,7 +56,19 @@ class _add_fridge_itemsState extends State<add_fridge_items> {
         _quantityController.clear();
         _shelfNumberController.clear();
         _selectedCategory = '';
-        setState(() {}); // Refresh the UI to display the new item
+        setState(() {});
+        showDialog(
+            context: context,
+            builder:(context) => AlertDialog(
+              title: Text('success'),
+              content: Text('product added sucessfully'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),)
+              ],
+
+            ) );// Refresh the UI to display the new item
       }).catchError((error) {
         showDialog(
           context: context,
