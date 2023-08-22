@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'fridge_items_tab.dart'; // Import the fridge_items_tab.dart file
 
 class Home_tab extends StatefulWidget {
@@ -48,13 +50,14 @@ class _HomeTabState extends State<Home_tab> {
                 SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {
+                    Get.to(() => fridge_items_tab(), transition: Transition.fade, duration: Duration(seconds:1));
                     // Show the fridge items when the fridge image is tapped
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => fridge_items_tab(),
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (_) => fridge_items_tab(),
+                    //   ),
+                    // );
                   },
                   child: Image.asset(
                     'images/fridgeLogo.png', // Path to the fridge image asset

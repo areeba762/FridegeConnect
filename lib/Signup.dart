@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get_navigation/src/routes/transitions_type.dart';
+import 'package:page_animation_transition/animations/fade_animation_transition.dart';
+import 'package:page_animation_transition/page_animation_transition.dart';
 import 'LoginView.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,10 +27,12 @@ class Signup extends StatelessWidget {
       // Set the login state to true using shared preferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('loggedIn', true);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => LoginView()),
-      );
+      Navigator.of(context).push(PageAnimationTransition(page: LoginView(), pageAnimationType: FadeAnimationTransition()));
+
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (_) => LoginView()),
+      // );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         Fluttertoast.showToast(msg: 'Weak password');
@@ -75,7 +80,9 @@ class Signup extends StatelessWidget {
                       child: Text('Signup',
                         style: TextStyle(color: Colors.white),),
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple), // Change the color here
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple),
+
+
                     ),
                     ),
                     SizedBox(height: 10.0),
@@ -83,7 +90,16 @@ class Signup extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => LoginView()),
+                          PageRouteBuilder(
+                            transitionDuration: Duration(milliseconds: 500),
+                            pageBuilder: (context, animation, secondaryAnimation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: LoginView(),
+                              );
+                            },
+                          ),
+                          // MaterialPageRoute(builder: (_) => LoginView()),
                         );
                       },
                       child: Text('Already have an account? Login'),

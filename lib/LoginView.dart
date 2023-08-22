@@ -88,7 +88,16 @@ class LoginView extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => Signup()),
+                          PageRouteBuilder(
+                          transitionDuration: Duration(milliseconds: 500),
+                          pageBuilder: (context, animation, secondaryAnimation) {
+                            return FadeTransition(
+                            opacity: animation,
+                            child: Signup(),
+                      );
+                      },
+                        // MaterialPageRoute(builder: (_) => Signup()),
+                      ),
                       );
                     },
                     child: Text('Dont have an account? Signup'),

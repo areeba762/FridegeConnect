@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'LoginView.dart';
 import 'SplashScreen.dart';
 import 'Home_tab.dart';
+import 'admob/admob_manager.dart';
 import 'fridge_items.dart';
 import 'fridge_items_tab.dart';
 import 'profile_tab.dart';
+
 class HomePage extends StatefulWidget {
 
   @override
@@ -17,12 +20,17 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
 
 
+
+
+
   // Function to change the selected tab in the bottom navigation bar
   void _onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
+
+
 
 
   @override
@@ -42,34 +50,40 @@ class _HomePageState extends State<HomePage> {
         currentPage = Home_tab();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Fridge Connect'),
-        actions: [
-          IconButton(
-            onPressed: () => _handleLogout(context),
-            icon: Icon(Icons.logout),
-          ),
-        ],
-      ),
-      body: currentPage,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.kitchen),
-            label: 'Fridge Items',
-          ),
-        ],
+    return SafeArea(
+      top: false,
+      bottom: true,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: Text('Fridge Connect'),
+          actions: [
+            IconButton(
+              onPressed: () => _handleLogout(context),
+              icon: Icon(Icons.logout),
+            ),
+          ],
+        ),
+        body: currentPage,
+
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onTabTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.kitchen),
+              label: 'Fridge Items',
+            ),
+          ],
+        ),
       ),
     );
   }
